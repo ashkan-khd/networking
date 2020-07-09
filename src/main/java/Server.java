@@ -53,21 +53,21 @@ public class Server {
             String input = inStream.readUTF();
             ObjectNode objectNode = mapper.readValue(input, ObjectNode.class);
             String message = objectNode.get("message").asText();
+
             switch (message) {
                 case "say hello" :
                 case "login" :
-                    new GeneralHandler(outStream, inStream, message, this).start();
+                    new GeneralHandler(outStream, inStream, message, this, input).start();
                     break;
                 case "add":
                 case "sub":
                 case "show score":
-
+                    new AccountHandler(outStream, inStream, message, this, input).start();
                     break;
                 default:
                     outStream.writeUTF("Invalid Command");
                     outStream.flush();
             }
-
         }
     }
 
@@ -87,6 +87,13 @@ public class Server {
         authTokens.put("" + counter, account);
     }
 
+    public Account getAccountWithAuthToken(String authToken) {
+        if(authTokens.containsKey(authToken))
+            return authTokens.get(authToken);
+
+        return null;
+    }
+
     public ArrayList<Score> getScores() {
         return scores;
     }
@@ -95,13 +102,13 @@ public class Server {
         return authTokens;
     }
 
-    //Login Username Password -> auth
-    //say hello -> string
-    //auth add 1 2 -> result
-    //auth sub 1 2 -> result
-    //auth show score
+    public void doMath(String auth, int a, int b, Consumer<Score> scoreConsumer) {
+        scores.stream().filter(score -> score.equals(authTokens.get(auth))).forEach(scoreConsumer);
+    }
 
-/*    private static class ClientHandler extends Thread{
+
+
+    /*private static class ClientHandler extends Thread{
         private Socket clientSocket;
         private DataOutputStream outStream;
         private DataInputStream inStream;
