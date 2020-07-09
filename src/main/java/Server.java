@@ -1,29 +1,32 @@
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.*;
+import java.lang.reflect.Type;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class Server {
     public final static int SERVER_PORT = 8080;
     private ServerSocket serverSocket;
-    private static ArrayList<Account> accounts;
-    private static ArrayList<Score> scores;
-    private static HashMap<String, Account> authTokens;
-    private static int counter = 1000;
+    private ObjectMapper mapper;
+    private ArrayList<Account> accounts;
+    private ArrayList<Score> scores;
+    private HashMap<String, Account> authTokens;
+    private int counter = 1000;
 
     private static Object addLock = new Object(), subLock = new Object();
 
     public Server() throws IOException {
         this.serverSocket = new ServerSocket(SERVER_PORT);
+        mapper = new ObjectMapper();
         accounts = new ArrayList<>();
         authTokens = new HashMap<>();
         scores = new ArrayList<>();
@@ -45,10 +48,52 @@ public class Server {
             System.out.println("Server Listening...");
             Socket clientSocket = serverSocket.accept();
             System.out.println("Client Accepted");
-            new ClientHandler(clientSocket).start();
+            DataInputStream inStream = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream()));
+            DataOutputStream outStream = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream()));
+            String input = inStream.readUTF();
+            ObjectNode objectNode = mapper.readValue(input, ObjectNode.class);
+            String message = objectNode.get("message").asText();
+            switch (message) {
+                case "say hello" :
+                case "login" :
+                    new GeneralHandler(outStream, inStream, message, this).start();
+                    break;
+                case "add":
+                case "sub":
+                case "show score":
+
+                    break;
+                default:
+                    outStream.writeUTF("Invalid Command");
+                    outStream.flush();
+            }
+
         }
     }
 
+    public ArrayList<Account> getAccounts() {
+        return accounts;
+    }
+
+    public void addCounter() {
+        counter++;
+    }
+
+    public int getCounter() {
+        return counter;
+    }
+
+    public void addAuth(Account account) {
+        authTokens.put("" + counter, account);
+    }
+
+    public ArrayList<Score> getScores() {
+        return scores;
+    }
+
+    public HashMap<String, Account> getAuthTokens() {
+        return authTokens;
+    }
 
     //Login Username Password -> auth
     //say hello -> string
@@ -56,15 +101,13 @@ public class Server {
     //auth sub 1 2 -> result
     //auth show score
 
-    private static class ClientHandler extends Thread{
+/*    private static class ClientHandler extends Thread{
         private Socket clientSocket;
         private DataOutputStream outStream;
         private DataInputStream inStream;
         private Controller controller = Controller.getController();
         private Gson gson;
-//        private CommandParser<Account> accountCommandParser;
-//        private CommandParser<String> stringCommandParser;
-//        private CommandParser<Integer> integerCommandParser;
+        private ObjectMapper mapper;
         private CommandParser commandParser;
         private static final Response ERROR_RESPONSE = new Response("Invalid Command!!");
         private static final Response NOT_LOGGED_IN_RESPONSE = new Response("Not Logged In");
@@ -74,9 +117,7 @@ public class Server {
             inStream = new DataInputStream(new BufferedInputStream(this.clientSocket.getInputStream()));
             outStream = new DataOutputStream(new BufferedOutputStream(this.clientSocket.getOutputStream()));
             gson = new GsonBuilder().setPrettyPrinting().create();
-//            accountParser = new CommandParser<>(gson);
-//            integerParser = new CommandParser<>(gson);
-//            stringParser = new CommandParser<>(gson);
+            mapper = new ObjectMapper();
             commandParser = new CommandParser(gson);
         }
 
@@ -86,17 +127,9 @@ public class Server {
                 String output = "";
                 String input = inStream.readUTF();
                 commandParser.setJson(input);
-                Class<String> stringClass = String.class;
-                ObjectMapper objectMapper = new ObjectMapper();
-                ObjectNode objectNode = objectMapper.readValue(input, ObjectNode.class);
+                ObjectNode objectNode = mapper.readValue(input, ObjectNode.class);
                 String message = objectNode.get("message").asText();
                 if(message.equals("login")) {
-//                    CommandParser<Account> accountCommandParser = new CommandParser<>(gson);
-//                    accountCommandParser.setJson(input);
-//                    accountParser.setJson(input);
-//                    Command<Account> command = gson.fromJson(input, new TypeToken<Command<Account>>() {}.getType());
-//                    System.out.println(command.getData().get(0).getUsername());
-//                    Account account = accountCommandParser.parseDatum(Account.class);
                     Account account = commandParser.parseDatum((Class<Account>)Account.class, Command.class);
                     if (accounts.contains(account) && accounts.get(accounts.indexOf(account)).getPassword().equals(account.getPassword())) {
                         Response<String> response = new Response<>("Logged In", "" + (++counter));
@@ -110,7 +143,6 @@ public class Server {
                     Response<String> response = new Response<>("Kir tot", controller.getHello());
                     output = gson.toJson(response, new TypeToken<Response<String>>() {}.getType());
                 } else if (message.equals("add") || message.equals("sub")) {
-//                    integerParser.setJson(input);
                     Command<Integer> command = commandParser.parseToCommand((Class<Integer>)Integer.class, Command.class);
                     if(command.getAuthToken() != null && !command.getAuthToken().isEmpty()) {
                         if (message.equals("add"))
@@ -171,6 +203,6 @@ public class Server {
             scores.stream().filter(score -> score.equals(authTokens.get(auth))).forEach(scoreConsumer);
         }
 
-    }
+    }*/
 
 }
