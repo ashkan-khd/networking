@@ -3,7 +3,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
 
-public class CommandParser<T> {
+public class CommandParser {
     private String json;
     private Gson gson;
 

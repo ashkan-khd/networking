@@ -62,9 +62,9 @@ public class Server {
         private DataInputStream inStream;
         private Controller controller = Controller.getController();
         private Gson gson;
-        private CommandParser<Account> accountParser;
-        private CommandParser<Integer> integerParser;
-        private CommandParser<String> stringParser;
+//        private CommandParser<Account> accountCommandParser;
+//        private CommandParser<String> stringCommandParser;
+//        private CommandParser<Integer> integerCommandParser;
         private CommandParser commandParser;
         private static final Response ERROR_RESPONSE = new Response("Invalid Command!!");
         private static final Response NOT_LOGGED_IN_RESPONSE = new Response("Not Logged In");
@@ -74,9 +74,9 @@ public class Server {
             inStream = new DataInputStream(new BufferedInputStream(this.clientSocket.getInputStream()));
             outStream = new DataOutputStream(new BufferedOutputStream(this.clientSocket.getOutputStream()));
             gson = new GsonBuilder().setPrettyPrinting().create();
-            accountParser = new CommandParser<>(gson);
-            integerParser = new CommandParser<>(gson);
-            stringParser = new CommandParser<>(gson);
+//            accountParser = new CommandParser<>(gson);
+//            integerParser = new CommandParser<>(gson);
+//            stringParser = new CommandParser<>(gson);
             commandParser = new CommandParser(gson);
         }
 
@@ -90,13 +90,14 @@ public class Server {
                 ObjectNode objectNode = objectMapper.readValue(input, ObjectNode.class);
                 String message = objectNode.get("message").asText();
                 if(message.equals("login")) {
-                    CommandParser<Account> accountCommandParser = new CommandParser<>(gson);
-                    accountCommandParser.setJson(input);
-                    accountParser.setJson(input);
+//                    CommandParser<Account> accountCommandParser = new CommandParser<>(gson);
+//                    accountCommandParser.setJson(input);
+//                    accountParser.setJson(input);
+                    commandParser.setJson(input);
                     Command<Account> command = gson.fromJson(input, new TypeToken<Command<Account>>() {}.getType());
                     System.out.println(command.getData().get(0).getUsername());
 //                    Account account = accountCommandParser.parseDatum(Account.class);
-                    Account account = accountCommandParser.parseDatum((Class<Account>)Account.class, Command.class);
+                    Account account = commandParser.parseDatum((Class<Account>)Account.class, Command.class);
                     if (accounts.contains(account) && accounts.get(accounts.indexOf(account)).getPassword().equals(account.getPassword())) {
                         Response<String> response = new Response<>("Logged In", "" + (++counter));
                         output = gson.toJson(response);
@@ -109,8 +110,9 @@ public class Server {
                     Response<String> response = new Response<>("Kir tot", controller.getHello());
                     output = gson.toJson(response, new TypeToken<Response<String>>() {}.getType());
                 } else if (message.equals("add") || message.equals("sub")) {
-                    integerParser.setJson(input);
-                    Command<Integer> command = integerParser.parseToCommand((Class<Integer>)Integer.class, Command.class);
+//                    integerParser.setJson(input);
+                    commandParser.setJson(input);
+                    Command<Integer> command = commandParser.parseToCommand((Class<Integer>)Integer.class, Command.class);
                     if(command.getAuthToken() != null && !command.getAuthToken().isEmpty()) {
                         if (message.equals("add"))
                             add(command.getAuthToken(), command.getData().get(0), command.getData().get(1));
