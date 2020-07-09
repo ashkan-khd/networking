@@ -85,6 +85,7 @@ public class Server {
             try {
                 String output = "";
                 String input = inStream.readUTF();
+                commandParser.setJson(input);
                 Class<String> stringClass = String.class;
                 ObjectMapper objectMapper = new ObjectMapper();
                 ObjectNode objectNode = objectMapper.readValue(input, ObjectNode.class);
@@ -93,9 +94,8 @@ public class Server {
 //                    CommandParser<Account> accountCommandParser = new CommandParser<>(gson);
 //                    accountCommandParser.setJson(input);
 //                    accountParser.setJson(input);
-                    commandParser.setJson(input);
-                    Command<Account> command = gson.fromJson(input, new TypeToken<Command<Account>>() {}.getType());
-                    System.out.println(command.getData().get(0).getUsername());
+//                    Command<Account> command = gson.fromJson(input, new TypeToken<Command<Account>>() {}.getType());
+//                    System.out.println(command.getData().get(0).getUsername());
 //                    Account account = accountCommandParser.parseDatum(Account.class);
                     Account account = commandParser.parseDatum((Class<Account>)Account.class, Command.class);
                     if (accounts.contains(account) && accounts.get(accounts.indexOf(account)).getPassword().equals(account.getPassword())) {
@@ -111,7 +111,6 @@ public class Server {
                     output = gson.toJson(response, new TypeToken<Response<String>>() {}.getType());
                 } else if (message.equals("add") || message.equals("sub")) {
 //                    integerParser.setJson(input);
-                    commandParser.setJson(input);
                     Command<Integer> command = commandParser.parseToCommand((Class<Integer>)Integer.class, Command.class);
                     if(command.getAuthToken() != null && !command.getAuthToken().isEmpty()) {
                         if (message.equals("add"))
