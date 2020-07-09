@@ -38,12 +38,12 @@ public abstract class Handler extends Thread{
         }
     }
 
-    abstract protected String handle() throws InterruptedException;
 
     //Login Username Password -> auth
     //say hello -> string
     //auth add 1 2 -> result
     //auth sub 1 2 -> result
     //auth show score
+    abstract protected String handle() throws InterruptedException;
 
 }
