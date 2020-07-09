@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -53,27 +56,28 @@ public class Client {
     private void showScore() throws IOException {
         Command command = new Command("show score");
         Response<Score> scoreResponse = postAndGet(command);
-        System.out.println(scoreResponse.getMessage() + "\n" + scoreResponse.getData()[0]);
+        System.out.println(scoreResponse.getMessage() + "\n" + scoreResponse.getData().get(0));
     }
 
     private void addOrSub(boolean isAdd,String firstNumber, String secondNumber) throws IOException {
         Command<Integer> addCommand = new Command<>((isAdd ? "add" : "sub"), Integer.parseInt(firstNumber), Integer.parseInt(secondNumber));
         Response<Score> scoreResponse = postAndGet(addCommand);
-        System.out.println(scoreResponse.getMessage() + "\n" + scoreResponse.getData()[0]);
+        System.out.println(scoreResponse.getMessage() + "\n" + scoreResponse.getData().get(0));
     }
 
     private void sayHello() throws IOException {
         Command command = new Command("say hello");
         Response<String> response = postAndGet(command);
-        System.out.println(response.getData()[0]);
+        System.out.println(response.getData().get(0));
     }
 
     private void login(String username, String password) throws IOException {
         Account account = new Account(username, password);
         Command<Account> loginCommand = new Command<>("login", account);
+        System.out.println(loginCommand.getClass());
         Response<String> authResponse = postAndGet(loginCommand);
         System.out.println(authResponse.getMessage());
-        authToken = authResponse.getData()[0];
+        authToken = authResponse.getData().get(0);
 
     }
 
@@ -82,7 +86,7 @@ public class Client {
         command.setAuthToken(authToken);
         String commandStr = gson.toJson(command,  new TypeToken<Command<E>>(){}.getType());
         System.out.println(command.getData());
-        System.out.println("my type: " + new TypeToken<Command<E>>(){}.getType());
+        System.out.println(commandStr);
         Command<E> eCommand = gson.fromJson(commandStr, new TypeToken<Command<E>>(){}.getType());
         System.out.println(eCommand.getData());
         outStream.writeUTF(commandStr);

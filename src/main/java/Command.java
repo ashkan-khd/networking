@@ -1,7 +1,10 @@
+import java.util.Arrays;
+import java.util.List;
+
 public class Command<T> {
     private String authToken;
     private String message;
-    private T[] data;
+    private List<T> data;
 
     public Command() {
     }
@@ -9,10 +12,10 @@ public class Command<T> {
     @SafeVarargs
     public Command(String message, T... data) {
         this.message = message;
-        this.data = data;
+        this.data = Arrays.asList(data);
     }
 
-    public Command(String authToken, String message, T[] data) {
+    public Command(String authToken, String message, List<T> data) {
         this.authToken = authToken;
         this.message = message;
         this.data = data;
@@ -22,7 +25,7 @@ public class Command<T> {
         return message;
     }
 
-    public T[] getData() {
+    public List<T> getData() {
         return data;
     }
 

@@ -1,9 +1,7 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import java.util.List;
 
 public class CommandParser<T> {
     private String json;
@@ -13,16 +11,16 @@ public class CommandParser<T> {
         this.gson = gson;
     }
 
-    public Command<T> parseToCommand() {
-        return gson.fromJson(json, new TypeToken<Command<T>>() {}.getType());
+    public<E, C extends Command> Command<E> parseToCommand(Class<E> type, Class<C> rawType) {
+        return gson.fromJson(json, /*new TypeToken<Command<E>>() {}.getType()*/TypeToken.getParameterized(rawType, type).getType());
     }
 
-    public T[] parseData() {
-        return parseToCommand().getData();
+    public<E, C extends Command> List<E> parseData(Class<E> type, Class<C> rawType) {
+        return parseToCommand(type, rawType).getData();
     }
 
-    public T parseDatum() {
-        return parseData()[0];
+    public<E, C extends Command> E parseDatum(Class<E> type, Class<C> rawType) {
+        return parseData(type, rawType).get(0);
     }
 
     public void setJson(String json) {

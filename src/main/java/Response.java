@@ -1,23 +1,24 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Response<T> {
     private String message;
-    private T[] data;
+    private List<T> data;
 
     @SafeVarargs
     public Response(String message, T... data) {
         this.message = message;
-        this.data = data;
+        this.data = Arrays.asList(data);
     }
 
-    public Response() {
-    }
+    public Response() { }
 
     public String getMessage() {
         return message;
     }
 
-    public T[] getData() {
+    public List<T> getData() {
         return data;
     }
 

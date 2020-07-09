@@ -94,8 +94,9 @@ public class Server {
                     accountCommandParser.setJson(input);
                     accountParser.setJson(input);
                     Command<Account> command = gson.fromJson(input, new TypeToken<Command<Account>>() {}.getType());
-                    System.out.println(command.getData()[0].getUsername());
-                    Account account = accountCommandParser.parseDatum();
+                    System.out.println(command.getData().get(0).getUsername());
+//                    Account account = accountCommandParser.parseDatum(Account.class);
+                    Account account = accountCommandParser.parseDatum((Class<Account>)Account.class, Command.class);
                     if (accounts.contains(account) && accounts.get(accounts.indexOf(account)).getPassword().equals(account.getPassword())) {
                         Response<String> response = new Response<>("Logged In", "" + (++counter));
                         output = gson.toJson(response);
@@ -109,18 +110,18 @@ public class Server {
                     output = gson.toJson(response, new TypeToken<Response<String>>() {}.getType());
                 } else if (message.equals("add") || message.equals("sub")) {
                     integerParser.setJson(input);
-                    Command<Integer> command = integerParser.parseToCommand();
+                    Command<Integer> command = integerParser.parseToCommand((Class<Integer>)Integer.class, Command.class);
                     if(command.getAuthToken() != null && !command.getAuthToken().isEmpty()) {
                         if (message.equals("add"))
-                            add(command.getAuthToken(), command.getData()[0], command.getData()[1]);
+                            add(command.getAuthToken(), command.getData().get(0), command.getData().get(1));
                         else
-                            sub(command.getAuthToken(), command.getData()[0], command.getData()[1]);
+                            sub(command.getAuthToken(), command.getData().get(0), command.getData().get(1));
                         Response<Score> response = new Response<>("Successful", getScoreWithUsername(authTokens.get(command.getAuthToken())));
                         output = gson.toJson(response);
                     } else
                         output = gson.toJson(NOT_LOGGED_IN_RESPONSE);
                 } else if(message.equals("show score")) {
-                    Command command = commandParser.parseToCommand();
+                    Command command = commandParser.parseToCommand((Class<Object>)Object.class, Command.class);
                     if(command.getAuthToken() != null && !command.getAuthToken().isEmpty()) {
                         Response<Score> scoreResponse = new Response<>("Your Score : ", getScoreWithUsername(authTokens.get(command.getAuthToken())));
                         output = gson.toJson(scoreResponse);

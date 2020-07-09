@@ -1,6 +1,8 @@
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.util.List;
+
 public class ResponseParser<T> {
     private String json;
     private Gson gson;
@@ -13,12 +15,12 @@ public class ResponseParser<T> {
         return gson.fromJson(json, new TypeToken<Response<T>>() {}.getType() );
     }
 
-    public T[] parseData() {
+    public List<T> parseData() {
         return parseToResponse().getData();
     }
 
     public T parseDatum() {
-        return parseData()[0];
+        return parseData().get(0);
     }
 
     public void setJson(String json) {
