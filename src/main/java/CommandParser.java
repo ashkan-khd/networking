@@ -1,6 +1,4 @@
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -17,7 +15,7 @@ public class CommandParser {
     }
 
     public<E, C extends Command> Command<E> parseToCommand(Class<E> type, Class<C> rawType) {
-        return gson.fromJson(json, /*new TypeToken<Command<E>>() {}.getType()*/TypeToken.getParameterized(rawType, type).getType());
+        return gson.fromJson(json, TypeToken.getParameterized(rawType, type).getType());
     }
 
     public<E, C extends Command> List<E> parseData(Class<E> type, Class<C> rawType) {
