@@ -1,8 +1,13 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
+import java.nio.BufferOverflowException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Client {
@@ -44,10 +49,48 @@ public class Client {
                 case "show" :
                     showScore();
                     break;
+                case "get" :
+                    getImage();
+                    break;
                 default:
                     System.out.println("Invalid Command :)");
             }
         }
+    }
+
+    private void getImage() throws IOException {
+        Command command = new Command("get picture");
+        System.out.println("1");
+        makeConnection();
+        System.out.println("2");
+        outStream.writeUTF(gson.toJson(command));
+        System.out.println("3");
+        outStream.flush();
+        System.out.println("4");
+        ArrayList<Integer> integers = new ArrayList<>();
+        int i;
+        while ((i = inStream.read()) > -1) {
+            integers.add(i);
+            System.out.println("i : " + i);
+        }
+        System.out.println("Integers Size : " + integers.size());
+        System.out.println("5");
+        byte[] bytes = new byte[integers.size()];
+        System.out.println("6");
+        for (int j = 0; j < integers.size(); j++) {
+            bytes[j] = integers.get(j).byteValue();
+            System.out.println("J : " + j);
+        }
+        System.out.println("Bytes Size : " + bytes.length);
+        System.out.println("7");
+        InputStream inputStream = new ByteArrayInputStream(bytes);
+        System.out.println(inputStream);
+        BufferedImage bufferedImage = ImageIO.read(inputStream);
+        System.out.println("Buffered Image : " + bufferedImage);
+        System.out.println("8");
+        System.out.println("Width : " + bufferedImage.getWidth());
+        System.out.println("Height : " + bufferedImage.getHeight());
+        closeConnection();
     }
 
     private void showScore() throws IOException {

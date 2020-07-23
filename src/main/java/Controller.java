@@ -1,3 +1,5 @@
+import javafx.scene.control.Alert;
+
 public class Controller {
     private static Controller controller = null;
 

@@ -38,12 +38,12 @@ public class Server {
         scores.add(new Score(hossein, 0));
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         Server server = new Server();
         server.run();
     }
 
-    private void run() throws IOException {
+    private void run() throws IOException, InterruptedException {
         while (true) {
             System.out.println("Server Listening...");
             Socket clientSocket = serverSocket.accept();
@@ -63,6 +63,10 @@ public class Server {
                 case "sub":
                 case "show score":
                     new AccountHandler(outStream, inStream, message, this, input).start();
+                    break;
+                case "get picture":
+                    System.out.println("0");
+                    new PictureHandler(outStream, inStream, message, this, input).start();
                     break;
                 default:
                     outStream.writeUTF("Invalid Command");
